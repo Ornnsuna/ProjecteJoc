@@ -36,3 +36,4 @@ rect_pivot_offset = Vector2( 100, 52 )
 text = "SALIR"
 
 [connection signal="pressed" from="jugar" to="jugar" method="_on_jugar_pressed"]
+[connection signal="pressed" from="salir" to="jugar" method="_on_salir_pressed"]
