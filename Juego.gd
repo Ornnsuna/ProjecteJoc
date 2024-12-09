@@ -12,8 +12,7 @@ var posJug2 = 0
 var random1 = 0
 var random2 = 0
 
-var turnP1: bool = true;
-var turnP2: bool = false;
+var turno_jugador = 1
 #var turnP3: bool = false;
 #var turnP4: bool = false;
 
@@ -26,7 +25,8 @@ func _ready():
 	timer.connect("timeout", self, "_on_timer_timeout")
 	timer.start()
 	mapa.pause_mode = Node.PAUSE_MODE_STOP
-	
+	$jugador2.self_modulate.a = 0.5	
+		
 	# colocacion del array de los hijos node2D
 	for child in get_children():
 		if child is Node2D:
@@ -36,9 +36,7 @@ func _ready():
 				
 	jugador1.position = casillas[0].position
 	jugador2.position = casillas[0].position
-	jugador1.connect("input_event", self, "_on_player_clicked", [1])
-	jugador2.connect("input_event", self, "_on_player_clicked", [2])
-		
+	
 	
 func _on_timer_timeout():
 	# timer de las reglas
@@ -48,26 +46,43 @@ func _on_timer_timeout():
 		timer.stop()
 		mapa.pause_mode = Node.PAUSE_MODE_PROCESS
 
-func _on_player_clicked(viewport, event, shape_idx, player_id):
-	if event is InputEventMouseButton and event.pressed:
-		if (player_id == 1 and turnP1) or (player_id == 2 and turnP2):
-			_roll_dice(player_id)
-func _roll_dice(player_id):
-	var dice1 = randi() % 6 + 1  # Número aleatorio entre 1 y 6
-	var dice2 = randi() % 6 + 1
-	var total_move = dice1 + dice2
+func _roll_dice(jugador_id):
+	# Simular lanzamiento de los dos dados
+	var movimiento = randi() % 6 + 1
 
-	if player_id == 1:
-		posJug1 += total_move
-		if posJug1 >= casillas.size():
-			posJug1 = casillas.size() - 1  # Evitar desbordamientos
-		jugador1.global_position = casillas[posJug1].global_position
-		turnP1 = false
-		turnP2 = true  # Cambiar al turno del jugador 2
-	elif player_id == 2:
-		posJug2 += total_move
-		if posJug2 >= casillas.size():
-			posJug2 = casillas.size() - 1
-		jugador2.global_position = casillas[posJug2].global_position
-		turnP2 = false
-		turnP1 = true  # Cambiar al turno del jugador 1
+
+	print("Jugador", jugador_id, "tiró", movimiento)
+
+	# Mover al jugador
+	if jugador_id == 1:
+		posJug1 = _mover_jugador(posJug1, movimiento, jugador1)
+	elif jugador_id == 2:
+		posJug2 = _mover_jugador(posJug2, movimiento, jugador2)
+
+func _mover_jugador(posicion_actual, movimiento, sprite):
+	# Calcular nueva posición
+	var nueva_posicion = posicion_actual + movimiento
+	if nueva_posicion >= NUM_CASILLAS:
+		print("¡El jugador ha llegado al final!")
+		nueva_posicion = NUM_CASILLAS - 1  # Mantener dentro del tablero
+
+	# Mover el sprite a la nueva casilla
+	sprite.position = casillas[nueva_posicion].position
+	print("Nueva posición del jugador:", nueva_posicion)
+	return nueva_posicion
+
+
+func _on_jugador1_pressed():
+	if turno_jugador == 1:
+		_roll_dice(1)  # Jugador 1 lanza los dados
+		$jugador1.self_modulate.a = 0.5
+		$jugador2.self_modulate.a = 1
+		turno_jugador = 2  # Pasa el turno al jugador 2place with function body.
+
+
+func _on_jugador2_pressed():
+	if turno_jugador == 2:
+		_roll_dice(2)  # Jugador 1 lanza los dados
+		$jugador2.self_modulate.a = 0.5
+		$jugador1.self_modulate.a = 1
+		turno_jugador = 1  # Pasa el turno al jugador 2place with function body.
