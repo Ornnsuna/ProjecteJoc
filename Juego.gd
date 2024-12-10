@@ -8,7 +8,18 @@ const NUM_CASILLAS = 57
 var casillas = []
 var posJug1 = 0
 var posJug2 = 0
-var contJaula = 3
+var monedasJug1 = 0
+var monedasJug2 = 0
+var estatsJug1 = [3, -2, -1]
+var estatsJug2 = [1, 1, 1]
+var contPosada = 2
+var contJaula = 2
+var contLaberinto = 3
+var pausaJug1 = false
+var pausaJug2 = false
+
+
+
 var retroceder = 0
 
 var movimiento = RandomNumberGenerator.new()
@@ -26,10 +37,13 @@ func _ready():
 	# timer de las reglas
 	timer.connect("timeout", self, "_on_timer_timeout")
 	timer.start()
+	$jugador1.disabled = true
+	$jugador2.disabled = true	
 	mapa.pause_mode = Node.PAUSE_MODE_STOP
+	
 	randomize()
 	$jugador2.self_modulate.a = 0.5	
-		
+	$jugador1.self_modulate.a = 1
 	# colocacion del array de los hijos node2D
 	for child in get_children():
 		if child is Node2D:
@@ -48,11 +62,17 @@ func _on_timer_timeout():
 		sprite.visible = false  
 		timer.stop()
 		mapa.pause_mode = Node.PAUSE_MODE_PROCESS
-
+		$jugador1.disabled = false
+		$jugador2.disabled = false
 func _roll_dice(jugador_id):
 	# Simular lanzamiento de dado
 	var movimiento = randi() % 6 + 1
-
+	
+	$dado.animation = "rolling"
+	yield(get_tree().create_timer(0.4), "timeout")
+	$dado.animation = str(movimiento)
+	
+	
 
 	print("Jugador", jugador_id, "tiró", movimiento)
 
@@ -88,7 +108,17 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 			turno_jugador = 2
 			$jugador1.self_modulate.a = 0.5
 			$jugador2.self_modulate.a = 1
-		
+	if nueva_posicion == 19: 
+		if id == 1:
+			pausaJug1 = true
+		elif id == 2:
+			pausaJug2 = true
+	
+	if posicion_actual == 19 && (pausaJug1 == true || pausaJug2 == true ):
+		if id == 1:
+			pausaJug1 = true
+		elif id == 2:
+			pausaJug2 = true
 	if nueva_posicion > NUM_CASILLAS:	
 		retroceder=nueva_posicion - NUM_CASILLAS
 		nueva_posicion = nueva_posicion - retroceder
