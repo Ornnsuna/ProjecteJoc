@@ -10,15 +10,15 @@ var posJug1 = 0
 var posJug2 = 0
 var monedasJug1 = 0
 var monedasJug2 = 0
-var estatsJug1 = [3, -2, -1]
-var estatsJug2 = [1, 1, 1]
+
 var pausaJug1 = false
 var pausaJug2 = false
 var contPausa1 = 0
 var contPausa2 = 0
+var pelea
+var gana = false
 
-
-
+var tipoRival = 0
 
 var retroceder = 0
 
@@ -74,12 +74,13 @@ func _roll_dice(jugador_id):
 	
 	
 
-	print("Jugador", jugador_id, "tiró", movimiento)
+	print("Jugador ", jugador_id, " tiró ", movimiento)
 
 	# Mover al jugador
 	
 	if jugador_id == 1:		
-		posJug1 = _mover_jugador(posJug1, movimiento, jugador1, 1)	
+		posJug1 = _mover_jugador(posJug1, movimiento, jugador1, 1)
+			
 	elif jugador_id == 2:
 		posJug2 = _mover_jugador(posJug2, movimiento, jugador2, 2)
 
@@ -116,26 +117,38 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 		elif id == 2:
 			pausaJug2 = true
 			contPausa2 = cuenta_Espera(nueva_posicion)
-			
-			
-	if nueva_posicion > NUM_CASILLAS:	
-		retroceder=nueva_posicion - NUM_CASILLAS
+	
+	if nueva_posicion in [4, 12, 15, 23, 28, 34, 42, 46, 51, 56]:
+		pelea = preload("res://Pelea.tscn")
+		gana = pelea.instance()
+		gana.some_variable = "0"
+		gana.id = turno_jugador
+		if nueva_posicion == 56:
+			tipoRival = 1 
+		gana.tipoBot = tipoRival
+		add_child(gana)
+		gana.connect("return_value", self, "_on_scene_b_return_value")
+		tipoRival = 0
+
+	if nueva_posicion > NUM_CASILLAS-1:	
+		retroceder = nueva_posicion - NUM_CASILLAS -1
 		nueva_posicion = nueva_posicion - retroceder
 		retroceder=0
 			
-	if nueva_posicion== NUM_CASILLAS:
-		print("¡El jugador ha llegado al final!")
+	if nueva_posicion == NUM_CASILLAS-1:
+		print("¡El jugador ", id ," ha llegado al final!")
 		nueva_posicion = NUM_CASILLAS - 1  # Mantener dentro del tablero
 
 	# Mover el sprite a la nueva casilla
 	sprite.position = casillas[nueva_posicion].position
-	print("Nueva posición del jugador", id ,"  " ,nueva_posicion+1)
+	print("Nueva posición del jugador ", id ,"  " ,nueva_posicion+1)
 	return nueva_posicion
+	
 
 
 func _on_jugador1_pressed():
 	if pausaJug1 == true:
-		print("Jugador 1 está en pausa durante", contPausa1, "turnos restantes.")
+		print("Jugador 1 está en pausa durante ", contPausa1, " turnos restantes.")
 		contPausa1 -= 1
 		if contPausa1 <= 0:
 			pausaJug1 = false
@@ -146,15 +159,16 @@ func _on_jugador1_pressed():
 
 	if turno_jugador == 1:
 		turno_jugador = 2
+		_roll_dice(1)
 		$jugador1.self_modulate.a = 0.5
 		$jugador2.self_modulate.a = 1
-		_roll_dice(1)
+		
 		
 
 
 func _on_jugador2_pressed():
 	if pausaJug2 == true:
-		print("Jugador 2 está en pausa durante", contPausa2, "turnos restantes.")
+		print("Jugador 2 está en pausa durante ", contPausa2, " turnos restantes.")
 		contPausa2 -= 1
 		if contPausa2 <= 0:
 			pausaJug2 = false
@@ -164,10 +178,9 @@ func _on_jugador2_pressed():
 		
 	if turno_jugador == 2:
 		turno_jugador = 1
+		_roll_dice(2)
 		$jugador2.self_modulate.a = 0.5
 		$jugador1.self_modulate.a = 1
-		_roll_dice(2)
-		
 	
 func cuenta_Espera(nueva_posicion):
 	if nueva_posicion == 19:
@@ -176,3 +189,10 @@ func cuenta_Espera(nueva_posicion):
 		return 3
 	elif nueva_posicion == 44:
 		return 2
+		
+func _on_scene_b_return_value(result: bool):
+	
+	print("Resultado recibido desde escena B: ", result)
+	# Destruir la escena B si ya no es necesaria
+	remove_child(gana)	
+	gana = result
