@@ -1,10 +1,15 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://Resources/combate.png" type="Texture" id=1]
 [ext_resource path="res://Pelea.gd" type="Script" id=2]
 [ext_resource path="res://Resources/guerrero.png" type="Texture" id=3]
 [ext_resource path="res://Resources/mago.png" type="Texture" id=4]
 [ext_resource path="res://Resources/dado.png" type="Texture" id=5]
+[ext_resource path="res://Resources/bot.png" type="Texture" id=6]
+[ext_resource path="res://Resources/jefe.png" type="Texture" id=7]
+[ext_resource path="res://Resources/escudo.png" type="Texture" id=8]
+[ext_resource path="res://Resources/espada.png" type="Texture" id=9]
+[ext_resource path="res://Resources/corazon.png" type="Texture" id=10]
 
 [sub_resource type="AtlasTexture" id=1]
 flags = 4
@@ -118,30 +123,33 @@ texture = ExtResource( 1 )
 position = Vector2( 176, 397 )
 
 [node name="rival" type="Node2D" parent="."]
-position = Vector2( 840, 432 )
+position = Vector2( 840.001, 400 )
 
-[node name="defensaJugador" type="Label" parent="."]
-margin_left = 168.0
-margin_top = 88.0
-margin_right = 208.0
-margin_bottom = 102.0
-rect_scale = Vector2( 7.04, 5.80882 )
-text = "1"
+[node name="posJefe" type="Node2D" parent="."]
+position = Vector2( 840.001, 304 )
 
 [node name="ataqueJugador" type="Label" parent="."]
-margin_left = 72.0
-margin_top = 88.0
-margin_right = 112.0
-margin_bottom = 102.0
+margin_left = 48.0
+margin_top = 64.0
+margin_right = 65.0
+margin_bottom = 78.0
+rect_scale = Vector2( 5.68, 6.04 )
+text = "1"
+
+[node name="defensaJugador" type="Label" parent="."]
+margin_left = 144.0
+margin_top = 64.0
+margin_right = 161.0
+margin_bottom = 78.0
 rect_scale = Vector2( 5.68, 6.04 )
 text = "1"
 
 [node name="vidaJugador" type="Label" parent="."]
-margin_left = 264.0
-margin_top = 88.0
-margin_right = 304.0
-margin_bottom = 102.0
-rect_scale = Vector2( 8.04, 6.19135 )
+margin_left = 241.0
+margin_top = 64.0
+margin_right = 258.0
+margin_bottom = 78.0
+rect_scale = Vector2( 5.68, 6.04 )
 text = "1"
 
 [node name="ficha1" type="Sprite" parent="."]
@@ -154,39 +162,15 @@ position = Vector2( -96, 400 )
 scale = Vector2( -0.335858, 0.301835 )
 texture = ExtResource( 4 )
 
-[node name="defensaRival" type="Label" parent="."]
-margin_left = 800.0
-margin_top = 88.0
-margin_right = 840.0
-margin_bottom = 102.0
-rect_scale = Vector2( 7.04, 5.80882 )
-text = "1"
-
-[node name="ataqueRival" type="Label" parent="."]
-margin_left = 704.0
-margin_top = 88.0
-margin_right = 744.0
-margin_bottom = 102.0
-rect_scale = Vector2( 5.68, 6.04 )
-text = "1"
-
-[node name="vidaRival" type="Label" parent="."]
-margin_left = 896.0
-margin_top = 88.0
-margin_right = 936.0
-margin_bottom = 102.0
-rect_scale = Vector2( 8.04, 6.19135 )
-text = "1"
-
 [node name="dado2" type="AnimatedSprite" parent="."]
 position = Vector2( 568, 400 )
-rotation = 0.644968
+rotation = -0.880689
 scale = Vector2( 1.05822, 1.02655 )
 frames = SubResource( 13 )
 animation = "1"
 playing = true
 
-[node name="dado" type="AnimatedSprite" parent="."]
+[node name="dado1" type="AnimatedSprite" parent="."]
 position = Vector2( 448, 320 )
 rotation = 0.694879
 scale = Vector2( 1.03406, 1.00777 )
@@ -201,6 +185,87 @@ margin_right = 483.0
 margin_bottom = 516.0
 rect_scale = Vector2( 4.24, 3.2 )
 text = "Tira"
+
+[node name="ataqueRival" type="Label" parent="."]
+margin_left = 688.001
+margin_top = 64.0
+margin_right = 705.001
+margin_bottom = 78.0
+rect_scale = Vector2( 5.68, 6.04 )
+text = "1"
+
+[node name="defensaRival" type="Label" parent="."]
+margin_left = 784.001
+margin_top = 64.0
+margin_right = 801.001
+margin_bottom = 78.0
+rect_scale = Vector2( 5.68, 6.04 )
+text = "1"
+
+[node name="vidaRival" type="Label" parent="."]
+margin_left = 881.001
+margin_top = 64.0
+margin_right = 898.001
+margin_bottom = 78.0
+rect_scale = Vector2( 5.68, 6.04 )
+text = "1"
+
+[node name="bot" type="Sprite" parent="."]
+position = Vector2( 1177.9, 175.615 )
+scale = Vector2( 0.385415, 0.419028 )
+texture = ExtResource( 6 )
+
+[node name="jefe" type="Sprite" parent="."]
+position = Vector2( 1209.9, 423.615 )
+scale = Vector2( 1.70414, 1.50183 )
+texture = ExtResource( 7 )
+
+[node name="espada" type="Sprite" parent="."]
+position = Vector2( 86, 175 )
+scale = Vector2( 0.109375, 0.130556 )
+texture = ExtResource( 9 )
+
+[node name="escudo" type="Sprite" parent="."]
+position = Vector2( 174, 175 )
+scale = Vector2( 0.128929, 0.125 )
+texture = ExtResource( 8 )
+
+[node name="vida" type="Sprite" parent="."]
+position = Vector2( 270, 175 )
+scale = Vector2( 0.0946458, 0.0879005 )
+texture = ExtResource( 10 )
+
+[node name="espada2" type="Sprite" parent="."]
+position = Vector2( 726.001, 175 )
+scale = Vector2( 0.109375, 0.130556 )
+texture = ExtResource( 9 )
+
+[node name="escudo2" type="Sprite" parent="."]
+position = Vector2( 814.001, 175 )
+scale = Vector2( 0.128929, 0.125 )
+texture = ExtResource( 8 )
+
+[node name="vida2" type="Sprite" parent="."]
+position = Vector2( 910.001, 175 )
+scale = Vector2( 0.0946458, 0.0879005 )
+texture = ExtResource( 10 )
+
+[node name="modo" type="Label" parent="."]
+margin_left = 403.0
+margin_top = 104.0
+margin_right = 456.0
+margin_bottom = 118.0
+rect_scale = Vector2( 3.84, 3.48 )
+text = "ATAQUE"
+align = 1
+
+[node name="danoTotal" type="Label" parent="."]
+margin_left = 480.001
+margin_top = 160.0
+margin_right = 489.001
+margin_bottom = 174.0
+rect_scale = Vector2( 5.52, 4.5087 )
+text = "0"
 
 [connection signal="ready" from="." to="." method="_on_Pelea_ready"]
 [connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

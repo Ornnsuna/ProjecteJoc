@@ -2,12 +2,14 @@ extends Node2D
 
 var countdown = 1  
 onready var sprite = $reglas
+onready var win = $win
 onready var timer = $reglas/Timer 
 onready var mapa = $mapa
 const NUM_CASILLAS = 57
 var casillas = []
 var posJug1 = 0
 var posJug2 = 0
+
 var monedasJug1 = 0
 var monedasJug2 = 0
 
@@ -16,7 +18,8 @@ var pausaJug2 = false
 var contPausa1 = 0
 var contPausa2 = 0
 var pelea
-var gana = false
+var gana
+var resultado = false
 
 var tipoRival = 0
 
@@ -39,6 +42,7 @@ func _ready():
 	timer.start()
 	$jugador1.disabled = true
 	$jugador2.disabled = true	
+	win.visible = false
 	mapa.pause_mode = Node.PAUSE_MODE_STOP
 	
 	randomize()
@@ -64,6 +68,7 @@ func _on_timer_timeout():
 		mapa.pause_mode = Node.PAUSE_MODE_PROCESS
 		$jugador1.disabled = false
 		$jugador2.disabled = false
+		
 func _roll_dice(jugador_id):
 	# Simular lanzamiento de dado
 	var movimiento = randi() % 6 + 1
@@ -87,18 +92,21 @@ func _roll_dice(jugador_id):
 			
 			
 func _mover_jugador(posicion_actual, movimiento, sprite, id):
-	# Calcular nueva posición
 	
+	# Calcular nueva posición
 	var nueva_posicion = posicion_actual + movimiento
 	
+	#CORRIENTE BAJADA
 	if nueva_posicion == 17:
 		nueva_posicion = 7
 		print("Me lleva la Corriente")
-		
+	
+	#CORRIENTE SUBIDA	
 	elif nueva_posicion == 7:
 		nueva_posicion =17
 		print("Me lleva la Corriente")
 		
+	#DOBLE TIRADA (OCA)
 	if nueva_posicion == 9 || nueva_posicion == 21 || nueva_posicion == 31 || nueva_posicion == 40 || nueva_posicion ==50:
 		print("¡Oca por oca y tiro por que me toca!")
 		if id == 1:
@@ -109,39 +117,86 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 			turno_jugador = 2
 			$jugador2.self_modulate.a = 1
 			$jugador1.self_modulate.a = 0.5
-			
+		
+	#CASILLAS DE ESPERA		
 	if nueva_posicion == 19 || nueva_posicion == 29 || nueva_posicion == 44: 
+		
 		if id == 1:
 			pausaJug1 = true
 			contPausa1 = cuenta_Espera(nueva_posicion)
+			if nueva_posicion == 19:
+				monedasJug1 += 1
 		elif id == 2:
 			pausaJug2 = true
 			contPausa2 = cuenta_Espera(nueva_posicion)
+			if nueva_posicion == 19:
+				monedasJug2 += 1
 	
-	if nueva_posicion in [4, 12, 15, 23, 28, 34, 42, 46, 51, 56]:
+	# MUERTE
+	if nueva_posicion == 52:
+		print("LA MUERTE jugador ", id)
+		nueva_posicion = 0;
+	
+	#PELEA CONTRA BOT
+	if nueva_posicion in [4, 12, 15, 23, 28, 34, 42, 46, 51]:
 		pelea = preload("res://Pelea.tscn")
 		gana = pelea.instance()
 		gana.some_variable = "0"
 		gana.id = turno_jugador
-		if nueva_posicion == 56:
-			tipoRival = 1 
+		tipoRival = 0
 		gana.tipoBot = tipoRival
 		add_child(gana)
 		gana.connect("return_value", self, "_on_scene_b_return_value")
-		tipoRival = 0
+		yield(gana, "return_value")  # Esperar a que se devuelva el resultado
+		
+		resultado = gana.gana
+		# Si resultado es false, volver a casilla 0
+		if resultado == false:
+			print("Resultado es falso: vuelves a la casilla 0")
+			nueva_posicion = 0
+		if resultado == true:
+			print("Resultado es verdadero: ganas una moneda")
+			if id == 1:
+				monedasJug1 += 1
 
-	if nueva_posicion > NUM_CASILLAS-1:	
-		retroceder = nueva_posicion - NUM_CASILLAS -1
-		nueva_posicion = nueva_posicion - retroceder
-		retroceder=0
-			
-	if nueva_posicion == NUM_CASILLAS-1:
-		print("¡El jugador ", id ," ha llegado al final!")
-		nueva_posicion = NUM_CASILLAS - 1  # Mantener dentro del tablero
+			elif id == 2:
+				monedasJug2 += 1
 
+	
+	
+	#PELEA CONTRA JEFE
+	if nueva_posicion >= NUM_CASILLAS-1:
+		# Lógica de la última casilla (ya existente)
+		pelea = preload("res://Pelea.tscn")
+		gana = pelea.instance()
+		gana.some_variable = "0"
+		gana.id = turno_jugador
+		tipoRival = 1
+		gana.tipoBot = tipoRival
+		add_child(gana)
+		gana.connect("return_value", self, "_on_scene_b_return_value")
+		yield(gana, "return_value")  # Esperar resultado
+		yield(get_tree().create_timer(0.4), "timeout")
+		
+		resultado = gana.gana
+		
+		if resultado == false:
+			print("Resultado final es falso: vuelves a la casilla 0")
+			nueva_posicion = 0
+		elif resultado == true:
+			print("Ganas")
+			win.visible == true
+			$jugador1.disabled = true
+			$jugador2.disabled = true
+	
+	
 	# Mover el sprite a la nueva casilla
+	$monedas1.text = str(monedasJug1)
+	$monedas2.text = str(monedasJug2)
 	sprite.position = casillas[nueva_posicion].position
-	print("Nueva posición del jugador ", id ,"  " ,nueva_posicion+1)
+	print("Nueva posición del jugador ", id ,"  ", nueva_posicion + 1)
+	
+	
 	return nueva_posicion
 	
 
@@ -191,8 +246,6 @@ func cuenta_Espera(nueva_posicion):
 		return 2
 		
 func _on_scene_b_return_value(result: bool):
-	
-	print("Resultado recibido desde escena B: ", result)
-	# Destruir la escena B si ya no es necesaria
+		# Destruir la escena B si ya no es necesaria
 	remove_child(gana)	
-	gana = result
+
