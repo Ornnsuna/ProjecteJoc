@@ -120,13 +120,13 @@ scale = Vector2( 0.266398, 0.278701 )
 texture = ExtResource( 1 )
 
 [node name="jugador" type="Node2D" parent="."]
-position = Vector2( 176, 397 )
+position = Vector2( 182, 384 )
 
 [node name="rival" type="Node2D" parent="."]
 position = Vector2( 840.001, 400 )
 
 [node name="posJefe" type="Node2D" parent="."]
-position = Vector2( 840.001, 304 )
+position = Vector2( 809.001, 314 )
 
 [node name="ataqueJugador" type="Label" parent="."]
 margin_left = 48.0
@@ -153,13 +153,13 @@ rect_scale = Vector2( 5.68, 6.04 )
 text = "1"
 
 [node name="ficha1" type="Sprite" parent="."]
-position = Vector2( -128, 152 )
-scale = Vector2( -0.374581, 0.299028 )
+position = Vector2( -116.645, 137.617 )
+scale = Vector2( -0.421892, 0.348116 )
 texture = ExtResource( 3 )
 
 [node name="ficha2" type="Sprite" parent="."]
-position = Vector2( -96, 400 )
-scale = Vector2( -0.335858, 0.301835 )
+position = Vector2( -80.8603, 388.645 )
+scale = Vector2( -0.398678, 0.340588 )
 texture = ExtResource( 4 )
 
 [node name="dado2" type="AnimatedSprite" parent="."]
@@ -216,7 +216,8 @@ scale = Vector2( 0.385415, 0.419028 )
 texture = ExtResource( 6 )
 
 [node name="jefe" type="Sprite" parent="."]
-position = Vector2( 1209.9, 423.615 )
+position = Vector2( 1216, 392 )
+rotation = 0.282591
 scale = Vector2( 1.70414, 1.50183 )
 texture = ExtResource( 7 )
 

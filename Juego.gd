@@ -2,14 +2,14 @@ extends Node2D
 
 var countdown = 1  
 onready var sprite = $reglas
-onready var win = $win
 onready var timer = $reglas/Timer 
 onready var mapa = $mapa
 const NUM_CASILLAS = 57
 var casillas = []
 var posJug1 = 0
 var posJug2 = 0
-
+var auxPosJug1 = 0
+var auxPosJug2 = 0
 var monedasJug1 = 0
 var monedasJug2 = 0
 
@@ -40,9 +40,10 @@ func _ready():
 	# timer de las reglas
 	timer.connect("timeout", self, "_on_timer_timeout")
 	timer.start()
+	$win.visible = false
 	$jugador1.disabled = true
 	$jugador2.disabled = true	
-	win.visible = false
+
 	mapa.pause_mode = Node.PAUSE_MODE_STOP
 	
 	randomize()
@@ -63,7 +64,7 @@ func _on_timer_timeout():
 	# timer de las reglas
 	countdown -= 1
 	if countdown <= 0:
-		sprite.visible = false  
+		  
 		timer.stop()
 		mapa.pause_mode = Node.PAUSE_MODE_PROCESS
 		$jugador1.disabled = false
@@ -84,9 +85,11 @@ func _roll_dice(jugador_id):
 	# Mover al jugador
 	
 	if jugador_id == 1:		
+		posJug1 = auxPosJug1
 		posJug1 = _mover_jugador(posJug1, movimiento, jugador1, 1)
 			
 	elif jugador_id == 2:
+		posJug2 = auxPosJug2
 		posJug2 = _mover_jugador(posJug2, movimiento, jugador2, 2)
 
 			
@@ -185,9 +188,10 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 			nueva_posicion = 0
 		elif resultado == true:
 			print("Ganas")
-			win.visible == true
+			$win.visible = true
 			$jugador1.disabled = true
 			$jugador2.disabled = true
+			nueva_posicion = NUM_CASILLAS - 1 
 	
 	
 	# Mover el sprite a la nueva casilla
@@ -196,6 +200,10 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 	sprite.position = casillas[nueva_posicion].position
 	print("Nueva posición del jugador ", id ,"  ", nueva_posicion + 1)
 	
+	if id == 1:
+		auxPosJug1 = nueva_posicion	
+	elif id == 2:
+		auxPosJug2= nueva_posicion
 	
 	return nueva_posicion
 	
