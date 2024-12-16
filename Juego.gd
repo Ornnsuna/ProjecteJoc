@@ -1,5 +1,6 @@
 extends Node2D
 
+# Variables principales del juego
 var countdown = 1  
 onready var sprite = $reglas
 onready var timer = $reglas/Timer 
@@ -37,7 +38,8 @@ onready var jugador2 = $ficha2
 
 
 func _ready():
-	# timer de las reglas
+	# Timer de las reglas
+	# Cuando se inicie el juego se inician las posiciones de los personajes, se inicia el mapa y otras cosas
 	timer.connect("timeout", self, "_on_timer_timeout")
 	timer.start()
 	$win.visible = false
@@ -46,44 +48,47 @@ func _ready():
 
 	mapa.pause_mode = Node.PAUSE_MODE_STOP
 	
+	#Aleatoriamente se decide que jugador empieza a jugar
 	randomize()
 	$jugador2.self_modulate.a = 0.5	
 	$jugador1.self_modulate.a = 1
-	# colocacion del array de los hijos node2D
+	
+	# Se meten las casillas en el array
 	for child in get_children():
 		if child is Node2D:
 			var child_name = int(child.name) if str(child.name).is_valid_integer() else -1
 			if child_name in range(1,58):
 				casillas.append(child)
-				
+	#Jugadores a la casillas 1
 	jugador1.position = casillas[0].position
 	jugador2.position = casillas[0].position
 	
 	
 func _on_timer_timeout():
-	# timer de las reglas
+	# Cuando el temporizador llega a 0, los jugadores por fin pueden empezar a moverse
 	countdown -= 1
 	if countdown <= 0:
-		  
 		timer.stop()
 		mapa.pause_mode = Node.PAUSE_MODE_PROCESS
 		$jugador1.disabled = false
 		$jugador2.disabled = false
-		
+
+
+# Activada con el boton de "Tirar" el jugador se mueve cierta cantidad aleatoria de casillas (Se puede saber que hhace con el nombre)
 func _roll_dice(jugador_id):
 	# Simular lanzamiento de dado
 	var movimiento = randi() % 6 + 1
 	
+	# Empieza la animación de tirar el dado (esta chulísima)
 	$dado.animation = "rolling"
 	yield(get_tree().create_timer(0.4), "timeout")
 	$dado.animation = str(movimiento)
 	
 	
-
+	# Esto muetra por GODOT, que jugador se ha movido x num de casillas en el turno x
 	print("Jugador ", jugador_id, " tiró ", movimiento)
 
-	# Mover al jugador
-	
+	# Mover al jugador dependiendo de quien este tirando
 	if jugador_id == 1:		
 		posJug1 = auxPosJug1
 		posJug1 = _mover_jugador(posJug1, movimiento, jugador1, 1)
@@ -93,10 +98,11 @@ func _roll_dice(jugador_id):
 		posJug2 = _mover_jugador(posJug2, movimiento, jugador2, 2)
 
 			
-			
+# (Parte mas grande del codigo) Aqui se decide que ocurre cuando el jugador se mueve, 
+# desde las casillas que se mueve hasta lo que ocurre si caes en cierta casilla  
 func _mover_jugador(posicion_actual, movimiento, sprite, id):
 	
-	# Calcular nueva posición
+	# Calcula al personaje en la nueva posicion nueva posición
 	var nueva_posicion = posicion_actual + movimiento
 	
 	#CORRIENTE BAJADA
@@ -122,6 +128,7 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 			$jugador1.self_modulate.a = 0.5
 		
 	#CASILLAS DE ESPERA		
+	# 	Casilla de "Posada"	   Casilla de "Laberinto"	Casilla de "Carcel"
 	if nueva_posicion == 19 || nueva_posicion == 29 || nueva_posicion == 44: 
 		
 		if id == 1:
@@ -206,10 +213,11 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 		auxPosJug2= nueva_posicion
 	
 	return nueva_posicion
-	
 
-
+# Botóon de "Tirar" de Jugador 1
 func _on_jugador1_pressed():
+	# Si anteriormente ha caido en un sitio de espera (Posada,Laberinto,Carcel) 
+	# aqui se espera y le cede el turno al otro jugador
 	if pausaJug1 == true:
 		print("Jugador 1 está en pausa durante ", contPausa1, " turnos restantes.")
 		contPausa1 -= 1
@@ -220,6 +228,7 @@ func _on_jugador1_pressed():
 		$jugador2.self_modulate.a = 1
 		return
 
+	# Si el turno es de este jugador, se bloquea el otro jugador
 	if turno_jugador == 1:
 		turno_jugador = 2
 		_roll_dice(1)
@@ -230,6 +239,8 @@ func _on_jugador1_pressed():
 
 
 func _on_jugador2_pressed():
+	# Si anteriormente ha caido en un sitio de espera (Posada,Laberinto,Carcel) 
+	# aqui se espera y le cede el turno al otro jugador
 	if pausaJug2 == true:
 		print("Jugador 2 está en pausa durante ", contPausa2, " turnos restantes.")
 		contPausa2 -= 1
@@ -239,20 +250,25 @@ func _on_jugador2_pressed():
 		$jugador2.self_modulate.a = 0.5
 		$jugador1.self_modulate.a = 1
 		
+	# Si el turno es de este jugador, se bloquea el otro jugador
 	if turno_jugador == 2:
 		turno_jugador = 1
 		_roll_dice(2)
 		$jugador2.self_modulate.a = 0.5
 		$jugador1.self_modulate.a = 1
-	
+
+# Cuantos turnos pierdes dependiendo de en que casilla se haya caído
 func cuenta_Espera(nueva_posicion):
+	# Si la casilla es la "Posada" (casilla 19), pierdes 1 turno
 	if nueva_posicion == 19:
 		return 1
+	# Si la casilla es la "Laberinto" (casilla 19), pierdes 3 turno	
 	elif nueva_posicion == 29:
 		return 3
+	# Si la casilla es la "Carcel" (casilla 19), pierdes 2 turno
 	elif nueva_posicion == 44:
 		return 2
-		
+
 func _on_scene_b_return_value(result: bool):
 		# Destruir la escena B si ya no es necesaria
 	remove_child(gana)	

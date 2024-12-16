@@ -1,5 +1,6 @@
 extends Node2D
 
+# Variables utilizadas en Pelea.gd
 signal return_value
 
 var resultadoJugador=0
@@ -61,18 +62,20 @@ func _ready():
 func _on_Button_pressed():
 	
 	$Button.disabled = true  
-
+	
+	# En este IF larguisimo se establece que si es el turno del jugador, sera el quien lanze el dado de ataque, 
+	# mientras que el enemigo lanzara su dado de defensa
 	if turnoJugador:
-		# Lanzar dado izquierdo (jugador)
+		# Lanzar dado del jugador
 
 		_roll_dice_jugador()
 		yield(get_tree().create_timer(0.5), "timeout")
 		
-		# Lanzar dado derecho (bot)
+		# Lanzar dado del enemigo
 		_roll_dice_rival()
 		yield(get_tree().create_timer(0.5), "timeout")
 		
-		# Mostrar resultados
+		# Mostrar resultados con la animacion chulisima esa
 		$dado1.animation = str(resultadoJugador)  # Dado izquierdo para jugador
 		$dado2.animation = str(resultadoRival)    # Dado derecho para bot
 		
@@ -80,9 +83,10 @@ func _on_Button_pressed():
 		$defensaRival.text = str(resultadoRival)
 		yield(get_tree().create_timer(1), "timeout")
 		
-		# Calcular daño
+		# Calcular daño dependiendo de que haya tirado el jugador y el enemigo
 		dano = resultadoJugador - resultadoRival
 		
+		# Si el daño resultante es mas grande que 0, se hace esa cantidad de daño al enemigo, sinó, termina el turno
 		if dano > 0:
 			$danoTotal.text = str(dano) 
 			estatRival[2] -= dano
@@ -92,23 +96,25 @@ func _on_Button_pressed():
 			else:
 				$vidaRival.text = str(estatRival[2])
 				$danoTotal.text = "0"
-	
+		
+		# Se resetean los valores a 0 i pasa el turno al enemigo
 		_reset_valores()  # Reset visual
 		yield(get_tree().create_timer(0.8), "timeout")
 		$modo.text = "DEFENSA"
 		turnoJugador = false
 
+	# 2da parte del IF larguisimoeste. Si antes era el turno del Jugador, 
+	# ahora sera el enemigo quien lanze el dado de ataque, 
 	else:
-
-		# Lanzar dado derecho (bot)
+		# Lanzar dado del enemigo
 		_roll_dice_rival()
 		yield(get_tree().create_timer(1), "timeout")
 		
-		# Lanzar dado izquierdo (jugador)
+		# Lanzar dado del jugador
 		_roll_dice_jugador()
 		yield(get_tree().create_timer(1), "timeout")
 		
-		# Mostrar resultados
+		# Mostrar resultados con la animación to chula esa dependiendo del resultado de cada uno
 		$dado1.animation = str(resultadoJugador)  # Dado izquierdo para jugador
 		$dado2.animation = str(resultadoRival)    # Dado derecho para bot
 		
@@ -116,8 +122,10 @@ func _on_Button_pressed():
 		$defensaJugador.text = str(resultadoJugador)
 		yield(get_tree().create_timer(1), "timeout")
 		
-		# Calcular daño
+		# Calcular daño dependiendo de que haya tirado el jugador y el enemigo
 		dano = resultadoRival - resultadoJugador
+		
+		# Si el daño resultante es mas grande que 0, se hace esa cantidad de daño al enemigo, sinó, termina el turno		
 		if dano > 0:
 			$danoTotal.text = str(dano)
 			estatsJug[2] -= dano
@@ -133,7 +141,7 @@ func _on_Button_pressed():
 		$modo.text = "ATAQUE"
 		turnoJugador = true
 
-	# Verificar si alguien ganó
+	# Verificar quien gana dependiendo de a quien le haya llegado la vida a 0
 	if estatRival[2] <= 0:
 		gana = true
 		emit_signal("return_value", gana)
@@ -144,21 +152,21 @@ func _on_Button_pressed():
 	$Button.disabled = false
 
 
-
+	# Lanzamiento de dado para el jugador 
 func _roll_dice_jugador():
-	# Simular lanzamiento de dado para el jugador (izquierda)
 	resultadoJugador = randi() % 6 + 1
 	$dado1.animation = "rolling"
 	yield(get_tree().create_timer(0.4), "timeout")
 	$dado1.animation = str(resultadoJugador)
-
+	
+# Lanzamiento de dado para el bot (enemigo)
 func _roll_dice_rival():
-	# Simular lanzamiento de dado para el bot (derecha)
 	resultadoRival = randi() % 6 + 1
 	$dado2.animation = "rolling"
 	yield(get_tree().create_timer(0.4), "timeout")
 	$dado2.animation = str(resultadoRival)
 	
+# Una vez termina el turno, las variables de Jugador y Bot, se restablecen a 0 
 func _reset_valores():
 	yield(get_tree().create_timer(0.6), "timeout")  # Pequeño tiempo de espera
 	$ataqueJugador.text = "0"
