@@ -42,6 +42,7 @@ func _ready():
 	# Cuando se inicie el juego se inician las posiciones de los personajes, se inicia el mapa y otras cosas
 	timer.connect("timeout", self, "_on_timer_timeout")
 	timer.start()
+	sprite.visible = true
 	$win.visible = false
 	$jugador1.disabled = true
 	$jugador2.disabled = true	
@@ -60,6 +61,7 @@ func _ready():
 			if child_name in range(1,58):
 				casillas.append(child)
 	#Jugadores a la casillas 1
+
 	jugador1.position = casillas[0].position
 	jugador2.position = casillas[0].position
 	
@@ -70,6 +72,7 @@ func _on_timer_timeout():
 	if countdown <= 0:
 		timer.stop()
 		mapa.pause_mode = Node.PAUSE_MODE_PROCESS
+		sprite.visible = false
 		$jugador1.disabled = false
 		$jugador2.disabled = false
 
