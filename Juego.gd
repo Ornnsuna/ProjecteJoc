@@ -1,7 +1,7 @@
 extends Node2D
 
 # Variables principales del juego
-var countdown = 1  
+var countdown = 15  
 onready var sprite = $reglas
 onready var timer = $reglas/Timer 
 onready var mapa = $mapa
@@ -9,8 +9,8 @@ const NUM_CASILLAS = 57
 var casillas = []
 var posJug1 = 0
 var posJug2 = 0
-var auxPosJug1 = 0
-var auxPosJug2 = 0
+var auxPosJug1 = posJug1
+var auxPosJug2 = posJug2
 var monedasJug1 = 0
 var monedasJug2 = 0
 
