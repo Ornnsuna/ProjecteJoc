@@ -1,31 +1,56 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Resources/paisaje.png" type="Texture" id=1]
+[ext_resource path="res://TransicionAnimacion.tscn" type="PackedScene" id=2]
 [ext_resource path="res://jugar.gd" type="Script" id=3]
+[ext_resource path="res://Ubuntu-Medium.ttf" type="DynamicFontData" id=4]
+
+[sub_resource type="DynamicFont" id=2]
+size = 1000
+font_data = ExtResource( 4 )
+
+[sub_resource type="DynamicFont" id=1]
+size = 1000
+font_data = ExtResource( 4 )
 
 [node name="Node2D" type="Node2D"]
 
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_left = -256.0
+margin_top = -271.0
+margin_right = 1620.0
+margin_bottom = 988.0
+
 [node name="Sprite" type="Sprite" parent="."]
-position = Vector2( 511, 298.25 )
-scale = Vector2( 0.534375, 0.556019 )
+position = Vector2( 640.125, 361.937 )
+scale = Vector2( 0.669662, 0.661227 )
 texture = ExtResource( 1 )
 
+[node name="salir" type="Button" parent="."]
+margin_left = 37.0
+margin_top = 418.0
+margin_right = 14087.0
+margin_bottom = 3570.0
+rect_scale = Vector2( 0.02, 0.02 )
+rect_pivot_offset = Vector2( 100, 52 )
+custom_fonts/font = SubResource( 2 )
+text = "SALIR"
+
 [node name="jugar" type="Button" parent="."]
-margin_left = 120.0
-margin_top = 289.0
-margin_right = 320.0
-margin_bottom = 341.0
+margin_left = 35.0
+margin_top = 344.0
+margin_right = 14035.0
+margin_bottom = 3470.0
+rect_scale = Vector2( 0.02, 0.02 )
 rect_pivot_offset = Vector2( 100, 26 )
+custom_fonts/font = SubResource( 1 )
 text = "JUGAR"
 script = ExtResource( 3 )
 
-[node name="salir" type="Button" parent="."]
-margin_left = 121.0
-margin_top = 386.0
-margin_right = 321.0
-margin_bottom = 438.0
-rect_pivot_offset = Vector2( 100, 52 )
-text = "SALIR"
+[node name="TransicionAnimacion" parent="jugar" instance=ExtResource( 2 )]
+visible = false
+position = Vector2( -6500, -16624 )
+scale = Vector2( 100, 100 )
 
-[connection signal="pressed" from="jugar" to="jugar" method="_on_jugar_pressed"]
 [connection signal="pressed" from="salir" to="jugar" method="_on_salir_pressed"]
+[connection signal="pressed" from="jugar" to="jugar" method="_on_jugar_pressed"]

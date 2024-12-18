@@ -30,7 +30,13 @@ var puntosBot
 
 var turnoJugador = true
 
+onready var sceneTransitionAnimation = $TransicionAnimacion/AnimationPlayer
+onready var MainTrans = $TransicionAnimacion
+
 func _ready():
+	
+	
+		
 	jugador1.position = jugador.position
 	jugador2.position = jugador.position
 	bot.position = rival.position
@@ -57,6 +63,13 @@ func _ready():
 	$ataqueRival.text = str(estatRival[0])
 	$defensaRival.text = str(estatRival[1])
 	$vidaRival.text = str(estatRival[2])
+	
+	#animacion normal
+	MainTrans.show()
+	sceneTransitionAnimation.get_parent().get_node("ColorRect").color.a = 0
+	sceneTransitionAnimation.play("fade_out")
+	yield(get_tree().create_timer(1), "timeout")
+	MainTrans.hide()
 		
 
 func _on_Button_pressed():
@@ -144,13 +157,15 @@ func _on_Button_pressed():
 	# Verificar quien gana dependiendo de a quien le haya llegado la vida a 0
 	if estatRival[2] <= 0:
 		gana = true
+		
 		emit_signal("return_value", gana)
+		
+		
 	elif estatsJug[2] <= 0:
 		gana = false
 		emit_signal("return_value", gana)
 	
 	$Button.disabled = false
-
 
 	# Lanzamiento de dado para el jugador 
 func _roll_dice_jugador():

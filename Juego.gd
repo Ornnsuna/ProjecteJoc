@@ -1,7 +1,7 @@
 extends Node2D
 
 # Variables principales del juego
-var countdown = 15  
+var countdown = 10 
 onready var sprite = $reglas
 onready var timer = $reglas/Timer 
 onready var mapa = $mapa
@@ -36,6 +36,15 @@ var turno_jugador = 1
 onready var jugador1 = $ficha1
 onready var jugador2 = $ficha2
 
+var is_moving = false
+var target_position: Vector2
+var move_duration := 2.0
+onready var tween := $Tween
+
+onready var sceneTransitionAnimation = $TransicionAnimacion/AnimationPlayer
+onready var MainTrans = $TransicionAnimacion
+
+
 
 func _ready():
 	# Timer de las reglas
@@ -64,6 +73,17 @@ func _ready():
 
 	jugador1.position = casillas[0].position
 	jugador2.position = casillas[0].position
+	
+	# Crear un nodo Tween si no existe
+	#tween = Tween.new()
+	#add_child(tween)
+
+	MainTrans.show()
+	sceneTransitionAnimation.get_parent().get_node("ColorRect").color.a = 0
+	sceneTransitionAnimation.play("fade_out")
+	yield(get_tree().create_timer(1), "timeout")
+	MainTrans.hide()
+
 	
 	
 func _on_timer_timeout():
@@ -152,6 +172,13 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 	
 	#PELEA CONTRA BOT
 	if nueva_posicion in [4, 12, 15, 23, 28, 34, 42, 46, 51]:
+		
+		MainTrans.show()
+		sceneTransitionAnimation.get_parent().get_node("ColorRect").color.a = 255
+		sceneTransitionAnimation.play("fade_in")
+		yield(get_tree().create_timer(1), "timeout")
+		MainTrans.hide()
+		
 		pelea = preload("res://Pelea.tscn")
 		gana = pelea.instance()
 		gana.some_variable = "0"
@@ -162,13 +189,20 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 		gana.connect("return_value", self, "_on_scene_b_return_value")
 		yield(gana, "return_value")  # Esperar a que se devuelva el resultado
 		
+		#trans blanca
+		MainTrans.show()
+		sceneTransitionAnimation.get_parent().get_node("ColorRect").color.a = 0
+		sceneTransitionAnimation.play("fade_out")
+		yield(get_tree().create_timer(1), "timeout")
+		MainTrans.hide()
+		
 		resultado = gana.gana
 		# Si resultado es false, volver a casilla 0
 		if resultado == false:
 			print("Resultado es falso: vuelves a la casilla 0")
 			nueva_posicion = 0
 		if resultado == true:
-			print("Resultado es verdadero: ganas una moneda")
+			print("Resultado es verdadero: ganas 1 moneda")
 			if id == 1:
 				monedasJug1 += 1
 
@@ -179,8 +213,18 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 	
 	#PELEA CONTRA JEFE
 	if nueva_posicion >= NUM_CASILLAS-1:
+		
+		#Animacion negro
+		MainTrans.show()
+		sceneTransitionAnimation.get_parent().get_node("ColorRect").color.a = 255
+		sceneTransitionAnimation.play("fade_in")
+		yield(get_tree().create_timer(1), "timeout")
+		MainTrans.hide()
 		# Lógica de la última casilla (ya existente)
 		pelea = preload("res://Pelea.tscn")
+		
+		
+		
 		gana = pelea.instance()
 		gana.some_variable = "0"
 		gana.id = turno_jugador
@@ -190,6 +234,13 @@ func _mover_jugador(posicion_actual, movimiento, sprite, id):
 		gana.connect("return_value", self, "_on_scene_b_return_value")
 		yield(gana, "return_value")  # Esperar resultado
 		yield(get_tree().create_timer(0.4), "timeout")
+		
+		#trans blanca
+		MainTrans.show()
+		sceneTransitionAnimation.get_parent().get_node("ColorRect").color.a = 0
+		sceneTransitionAnimation.play("fade_out")
+		yield(get_tree().create_timer(1), "timeout")
+		MainTrans.hide()
 		
 		resultado = gana.gana
 		
@@ -276,3 +327,32 @@ func _on_scene_b_return_value(result: bool):
 		# Destruir la escena B si ya no es necesaria
 	remove_child(gana)	
 
+#MOVIMIENTO
+func move_to_position(destination: Vector2):
+	# Solo mueve si no hay otro movimiento en curso
+	if not is_moving:
+		is_moving = true
+		target_position = destination
+		
+		# Empezar el desplazamiento suave usando interpolación
+		tween.interpolate_property(
+			self,                        # Nodo actual
+			"position",                  # Propiedad a cambiar
+			position,                    # Posición inicial
+			destination,                 # Posición final
+			move_duration,               # Duración en segundos
+			Tween.TRANS_LINEAR,          # Transición lineal
+			Tween.EASE_IN_OUT            # Suavizado
+		)
+		
+		# Iniciar el Tween
+		tween.start()
+
+func _process(delta):
+	# Lógica adicional durante el movimiento si es necesario
+	pass
+
+func _on_Tween_tween_completed(object, key):
+	# Evento cuando el Tween finaliza el movimiento
+	if key == "position":
+		is_moving = false
