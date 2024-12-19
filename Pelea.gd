@@ -53,11 +53,11 @@ func _ready():
 		jugador1.visible = false
 		
 	if tipoBot == 0:
-		estatRival = [0 ,0 ,10]
+		estatRival = [0 ,0 ,5]
 		bot.visible = true
 		jefe.visible = false
 	elif tipoBot == 1:
-		estatRival = [0, 0, 30]
+		estatRival = [0, 0, 5]
 		bot.visible = false
 		jefe.visible = true
 	$ataqueRival.text = str(estatRival[0])
